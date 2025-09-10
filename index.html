@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telegram Bot Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Telegram-style Colors ===== */
+:root {
+  --primary-bg: #e6ecf0;
+  --primary-text: #1c1c1c;
+  --card-bg: #fff;
+  --shadow-color: rgba(0,0,0,0.1);
+  --btn-bg: #0088cc;
+  --btn-hover: #007ab8;
+  --input-bg: #f4f7fa;
+  --input-text: #1c1c1c;
+}
+
+[data-theme="dark"] {
+  --primary-bg: #1b1b1b;
+  --primary-text: #e6ecf0;
+  --card-bg: #2a2a2a;
+  --shadow-color: rgba(0,0,0,0.5);
+  --btn-bg: #0088cc;
+  --btn-hover: #00aaff;
+  --input-bg: #2a2a2a;
+  --input-text: #e6ecf0;
+}
+
+/* ===== Global ===== */
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: var(--primary-bg);
+  color: var(--primary-text);
+  transition: background 0.4s, color 0.4s;
+  overflow-x: hidden;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: var(--card-bg);
+  box-shadow: 2px 0 20px var(--shadow-color);
+  overflow-x: hidden;
+  transition: 0.3s;
+  z-index: 1000;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--shadow-color);
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--primary-text);
+}
+
+.sidebar .closebtn {
+  font-size: 28px;
+  cursor: pointer;
+  color: var(--primary-text);
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0 0;
+}
+
+.sidebar-menu li {
+  margin: 10px 0;
+}
+
+.sidebar-menu a {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 18px;
+  color: var(--primary-text);
+  border-radius: 8px;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.sidebar-menu a span {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.sidebar-menu a:hover {
+  background-color: var(--btn-bg);
+  color: #fff;
+  transform: translateX(5px);
+}
+
+/* Overlay */
+#overlay {
+  position: fixed;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+  z-index: 900;
+  transition: 0.3s;
+}
+
+/* Hamburger */
+.hamburger {
+  font-size: 28px;
+  cursor: pointer;
+  position: fixed;
+  top: 15px;
+  left: 20px;
+  z-index: 1100;
+  color: var(--primary-text);
+  transition: color 0.3s;
+}
+
+/* ===== Container ===== */
+.container {
+  padding: 60px 20px 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+  transition: margin-left 0.3s;
+}
+
+/* Headers */
+h1, h2 {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Instructions */
+.instructions {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  transition: background 0.4s;
+}
+
+/* Search Bar */
+.search-bar {
+  width: 98%;
+  padding: 12px 15px;
+  margin: 20px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 1rem;
+  background: var(--input-bg);
+  color: var(--input-text);
+  transition: background 0.4s, color 0.4s;
+}
+
+/* Featured Cards */
+.content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+.card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 6px 20px var(--shadow-color);
+  transition: all 0.4s;
+  transform: translateY(0);
+}
+.card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 12px 30px var(--shadow-color);
+}
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  transition: transform 0.4s;
+}
+.card img:hover {
+  transform: scale(1.05);
+}
+
+/* Buttons */
+.btn {
+  background: var(--btn-bg);
+  color: #fff;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s, transform 0.2s;
+}
+.btn:hover {
+  background: var(--btn-hover);
+  transform: scale(1.05);
+}
+
+/* Request Section */
+.request-section {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 15px;
+  margin-top: 50px;
+  text-align: center;
+  box-shadow: 0 6px 20px var(--shadow-color);
+  transition: background 0.4s;
+}
+.request-section a {
+  display: inline-block;
+  margin-top: 15px;
+  background: var(--btn-bg);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #fff;
+  transition: 0.3s;
+}
+.request-section a:hover {
+  background: var(--btn-hover);
+}
+
+/* Footer */
+footer {
+  text-align: center; 
+  padding: 15px 10px; 
+  font-size: 14px; 
+  color: var(--primary-text);
+  background: var(--card-bg); 
+  margin-top: 50px;
+  border-top: 1px solid var(--shadow-color);
+  transition: background 0.4s, color 0.4s;
+}
+</style>
+</head>
+<body data-theme="light">
+
+<!-- Hamburger -->
+<span class="hamburger" onclick="openNav()">&#9776;</span>
+
+<!-- Overlay -->
+<div id="overlay" onclick="closeNav()"></div>
+
+<!-- Sidebar -->
+<div id="mySidebar" class="sidebar">
+  <div class="sidebar-header">
+    <h2>Menu</h2>
+    <span class="closebtn" onclick="closeNav()">&times;</span>
+  </div>
+  <ul class="sidebar-menu">
+    <li><a href="#"><span>🏠</span> Home</a></li>
+    <li><a href="#" onclick="toggleTheme()"><span>🌙</span> Dark/Light Theme</a></li>
+  </ul>
+</div>
+
+<div class="container">
+  <h1>🚀 Telegram Bot Finder</h1>
+
+  <div class="instructions">
+    <h2>How to Use</h2>
+    <p>1. Install Telegram from the <a href="https://telegram.org/" target="_blank" style="color:#0088cc;">official site</a>.</p>
+    <p>2. Search for bots below or browse featured categories.</p>
+    <p>3. Click <b>Open Bot</b> to launch in Telegram.</p>
+  </div>
+
+  <input type="text" class="search-bar" id="search" placeholder="🔍 Search for Telegram bots..." onkeyup="searchContent()">
+
+  <h2>✨ Featured Bots</h2>
+  <div class="content" id="content">
+    <div class="card" data-title="File Downloader Bot">
+      <img src="img/Cat Downloader.jpg" alt="File Downloader Bot">
+      <h3>Cat Downloader Bot</h3>
+      <p>💬 Free social media photos, videos, status downloader.</p>
+      <button class="btn" onclick="openBot('https://t.me/CatdlBot')">Open Bot</button>
+    </div>
+
+    <div class="card" data-title="Ai Background Remover Bot">
+      <img src="img\ai.jpg" alt="Ai Background Remover Bot">
+      <h3>Ai Background Remover Bot</h3>
+      <p>💬 Removes the background for you — totally free and fast!</p>
+      <button class="btn" onclick="openBot('https://t.me/bg_remove_ai_bot')">Open Bot</button>
+    </div>
+
+    <div class="card" data-title="Fontgram">
+      <img src="img/font.jpg " alt="Fontgram">
+      <h3>Fontgram</h3>
+      <p>💬 A cool bot for changi
+        ng texts to different fonts, supporting all fonts!</p>
+      <button class="btn" onclick="openBot('https://t.me/fontsgrambot')">Open Bot</button>
+    </div>
+
+    <div class="card" data-title="Quiz Master Bot">
+      <img src="images/bot4.jpg" alt="Quiz Bot">
+      <h3>Quiz Master</h3>
+      <p>💬 Create and play quizzes in Telegram groups.</p>
+      <button class="btn" onclick="openBot('https://t.me/quizbot')">Open Bot</button>
+    </div>
+  </div>
+
+  <div class="request-section">
+    <h2>📩 Submit Your Bot</h2>
+    <p>Want to feature your bot here? Submit it using the form below:</p>
+    <a href="https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?usp=sf_link" target="_blank">Submit via Google Form</a>
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 <strong>Telegram Bot Finder</strong>. All rights reserved.
+  <br>
+  <span style="font-size: 12px; opacity: 0.7;">This website is not affiliated with Telegram or any third-party developers.</span>
+</footer>
+
+<script>
+// Sidebar open/close
+function openNav() {
+  document.getElementById("mySidebar").style.width = "250px";
+  document.getElementById("overlay").style.display = "block";
+  document.querySelector(".container").style.marginLeft = "250px";
+}
+function closeNav() {
+  document.getElementById("mySidebar").style.width = "0";
+  document.getElementById("overlay").style.display = "none";
+  document.querySelector(".container").style.marginLeft= "0";
+}
+
+// Search function
+function searchContent() {
+  let input = document.getElementById('search').value.toLowerCase();
+  let cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    let title = card.dataset.title.toLowerCase();
+    card.style.display = title.includes(input) ? "" : "none";
+  });
+}
+
+// Open Telegram Bot
+function openBot(link) {
+  window.open(link, '_blank');
+}
+
+// Theme toggle
+function toggleTheme() {
+  const theme = document.body.getAttribute('data-theme');
+  document.body.setAttribute('data-theme', theme === 'light' ? 'dark' : 'light');
+}
+
+// Default theme
+document.body.setAttribute('data-theme', 'light');
+</script>
+</body>
+</html>
+
